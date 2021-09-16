@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import {
   Input,
   Form,
@@ -10,21 +10,22 @@ import {
   Select,
 } from "antd";
 import "antd/dist/antd.css";
+import { instance } from "../api/instance";
 
 const { Title } = Typography;
 const { Option } = Select;
 
-function Login(props) {
-  const [isError, setError] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const onLogin = () => {
-    if (email === "anon@mail.com" && password === "anonim") {
-      props.onLogin();
-    } else {
-      setError(true);
-    }
+function Login() {
+  const onLogin = ( values ) => {
+    instance.post("/login", {
+      username: values.username,
+      password: values.password,
+      login_as: "1"
+    }).then(() => {
+      message.success("Login Succesfull!")
+    }).catch(() => {
+      message.error("Check your email address and password!")
+    });
   };
 
   return (
@@ -49,6 +50,7 @@ function Login(props) {
           wrapperCol={{
             span: 16,
           }}
+          onFinish={onLogin}
         >
           <Form.Item
             label="Username"
@@ -62,8 +64,7 @@ function Login(props) {
           >
             <Input
               placeholder="Enter your username."
-              type="email"
-              onChange={(event) => setEmail(event.target.value)}
+              type="username"
             />
           </Form.Item>
           <Form.Item
@@ -79,7 +80,6 @@ function Login(props) {
             <Input.Password
               placeholder="Enter your account password."
               type="password"
-              onChange={(event) => setPassword(event.target.value)}
             />
           </Form.Item>
 
@@ -95,13 +95,12 @@ function Login(props) {
               span: 16,
             }}
           >
-            <Button type="primary" htmlType="submit" onClick={onLogin}>
+            <Button type="primary" htmlType="submit" >
               Login
             </Button>
           </Form.Item>
         </Form>
       </Card>
-      {isError ? message.error("Check your email address and password") : null}
     </div>
   );
 }
